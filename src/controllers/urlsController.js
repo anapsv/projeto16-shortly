@@ -25,23 +25,17 @@ export async function postNewURL(req, res) {
 
 export async function getURLById(req, res) {
 
-    const id = req.params.id;
+    const { id } = req.params;
 
-    try {
-        const queryData = await connection.query(
-            `SELECT id, "shortUrl", "url" FROM urls WHERE id = $1;`, [id]
-        );
-
-
-        const response = {
-            id: id,
-            shortUrl: queryData.rows[0].shortUrl,
-            url: queryData.rows[0].url
-        };
-
-        return res.status(200).send(response);
-    } catch (error) {
-        return res.status(500).send(error);
+    const { rows: url } = await connection.query(
+      `SELECT id, "shortURL", url FROM urls WHERE id = $1`,
+      [id]
+    );
+  
+    if (url.length === 0) {
+      res.sendStatus(404);
+    } else {
+      res.status(200).send(url);
     }
 
 }
