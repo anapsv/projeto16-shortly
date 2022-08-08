@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import usersRouter from './routes/usersRouter.js';
 import urlsRouter from './routes/urlsRouter.js';
+import rankingRouter from './routes/rankingRouter.js';
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use(usersRouter);
 app.use(urlsRouter);
+app.use(rankingRouter);
 
 const PORT = process.env.PORT || 4001;
 app.listen(PORT, () =>

@@ -72,3 +72,27 @@ export async function loginUser(req, res) {
     }
 
 }
+
+export async function getUsersData(req, res){
+
+    const userId = res.locals.userId;
+
+    try {
+        
+        const { rows: totalViews } = await connection.query(
+            `SELECT urls."userId" AS id, users.name AS name, CAST(SUM(urls."viewsCount") AS INTEGER) AS "viewsCount" FROM urls JOIN users ON urls."userId" = users.id WHERE urls."userId" = $1 GROUP BY urls."userId", users.name`, [userId]
+        );
+
+        const { rows: urls } = await connection.query(
+            `SELECT id, "userId", url, "viewsCount" FROM urls WHERE "userId" = $1`, [userId]
+        );
+
+        const userData = totalViews[0] ? {...totalViews[0], shortUrls: urls} : `Nenhuma URL registrada`;
+
+        return res.status(200).send(userData);
+
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+
+}
