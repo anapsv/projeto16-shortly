@@ -8,6 +8,6 @@ export const userSignUpSchema = joi.object({
 });
 
 export const userSignInSchema = joi.object({
-  email: joi.string().email().required(),
+  email: joi.string().pattern(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/).required(),
   password: joi.string().required(),
 });

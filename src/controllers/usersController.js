@@ -1,6 +1,9 @@
 import connection from '../dbStrategy/dbShortly.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export async function addUser(req, res) {
     const hashparam = 10;
@@ -11,7 +14,7 @@ export async function addUser(req, res) {
     try {
         const { rows: emailExists } = await connection.query(
             "SELECT * FROM users WHERE email = $1;",
-            [email]
+            [user.email]
         );
 
         if (emailExists.length !== 0) {
@@ -49,25 +52,21 @@ export async function loginUser(req, res) {
         );
     
         if (user.length === 0) {
-          return res.sendStatus(401);
+          return res.status(401).send("O usuário não existe");
         }
     
         const checkPassword = bcrypt.compareSync(password, user[0].password);
     
         if (!checkPassword) {
-          return res.sendStatus(401);
+          return res.status(401).send("Usuário ou senha incorretos");
         }
     
         const secretKey = process.env.JWT_SECRET;
         const token = jwt.sign({ id: user[0].id }, secretKey);
-       
-        await connection.query(
-          `INSERT INTO sessions (token,user_id) VALUES ($1,$2);`,
-          [token,user[0].id]
-        );
   
         return res.status(200).send({ token });
       } catch (error) {
+        console.log(error.stack);
         return res.status(400).send(error);
     }
 
