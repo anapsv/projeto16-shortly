@@ -46,23 +46,24 @@ export async function loginUser(req, res) {
     const {email, password} = req.body;
 
     try {
-        const { rows: user } = await connection.query(
+        const { rows } = await connection.query(
           `SELECT * FROM users WHERE email = $1;`,
           [email]
         );
+        const user = rows[0];
     
         if (user.length === 0) {
           return res.status(401).send("O usuário não existe");
         }
     
-        const checkPassword = bcrypt.compareSync(password, user[0].password);
+        const checkPassword = bcrypt.compareSync(password, user.password);
     
         if (!checkPassword) {
           return res.status(401).send("Usuário ou senha incorretos");
         }
     
         const secretKey = process.env.JWT_SECRET;
-        const token = jwt.sign({ id: user[0].id }, secretKey);
+        const token = jwt.sign({ id: user.id }, secretKey);
   
         return res.status(200).send({ token });
       } catch (error) {
